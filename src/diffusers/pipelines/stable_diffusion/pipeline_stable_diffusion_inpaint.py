@@ -717,7 +717,13 @@ class StableDiffusionInpaintPipeline(DiffusionPipeline):
                 if i == len(timesteps) - 1 or ((i + 1) > num_warmup_steps and (i + 1) % self.scheduler.order == 0):
                     progress_bar.update()
                     if callback is not None and i % callback_steps == 0:
-                        callback(i, t, latents)
+                        # compute an image from the latents
+                        scaled_latents = 1 / 0.18215 * latents
+                        image = self.vae.decode(scaled_latents).sample
+                        image = (image / 2 + 0.5).clamp(0, 1)
+                        image = image.cpu().permute(0, 2, 3, 1).numpy()
+                        image = self.numpy_to_pil(image)
+                        callback(i, t, image)
 
         # 11. Post-processing
         image = self.decode_latents(latents)
