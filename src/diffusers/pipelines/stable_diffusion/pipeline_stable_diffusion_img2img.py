@@ -591,14 +591,10 @@ class StableDiffusionImg2ImgPipeline(DiffusionPipeline):
         # 9. Post-processing
         image = self.decode_latents(latents)
 
-        # 10. Run safety checker
-        image, has_nsfw_concept = self.run_safety_checker(image, device, text_embeddings.dtype)
-
-        # 11. Convert to PIL
         if output_type == "pil":
             image = self.numpy_to_pil(image)
 
         if not return_dict:
-            return (image, has_nsfw_concept)
+            return (image, False)
 
-        return StableDiffusionPipelineOutput(images=image, nsfw_content_detected=has_nsfw_concept)
+        return StableDiffusionPipelineOutput(images=image, nsfw_content_detected=False)

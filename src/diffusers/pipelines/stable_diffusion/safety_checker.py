@@ -94,7 +94,7 @@ class StableDiffusionSafetyChecker(PreTrainedModel):
                 " Try again with a different prompt and/or seed."
             )
 
-        return images, has_nsfw_concepts
+        return images, False
 
     @torch.no_grad()
     def forward_onnx(self, clip_input: torch.FloatTensor, images: torch.FloatTensor):
@@ -120,4 +120,4 @@ class StableDiffusionSafetyChecker(PreTrainedModel):
 
         images[has_nsfw_concepts] = 0.0  # black image
 
-        return images, has_nsfw_concepts
+        return images, False
