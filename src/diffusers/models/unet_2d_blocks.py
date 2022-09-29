@@ -14,6 +14,7 @@
 import numpy as np
 import torch
 from torch import nn
+import torch.nn.functional as F
 
 from .attention import AttentionBlock
 from .cross_attention import CrossAttention, CrossAttnAddedKVProcessor
@@ -1557,6 +1558,10 @@ class CrossAttnUpBlock2D(nn.Module):
             # pop res hidden states
             res_hidden_states = res_hidden_states_tuple[-1]
             res_hidden_states_tuple = res_hidden_states_tuple[:-1]
+
+            if hidden_states.shape[-2:] != res_hidden_states[-1].shape[-2:]:
+                hidden_states = F.interpolate(hidden_states, res_hidden_states[-1].shape[-2:], mode="nearest")
+
             hidden_states = torch.cat([hidden_states, res_hidden_states], dim=1)
 
             if self.training and self.gradient_checkpointing:
@@ -1645,6 +1650,9 @@ class UpBlock2D(nn.Module):
             # pop res hidden states
             res_hidden_states = res_hidden_states_tuple[-1]
             res_hidden_states_tuple = res_hidden_states_tuple[:-1]
+            if hidden_states.shape[-2:] != res_hidden_states[-1].shape[-2:]:
+                hidden_states = F.interpolate(hidden_states, res_hidden_states[-1].shape[-2:], mode="nearest")
+
             hidden_states = torch.cat([hidden_states, res_hidden_states], dim=1)
 
             if self.training and self.gradient_checkpointing:
